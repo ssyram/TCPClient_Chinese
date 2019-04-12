@@ -1,0 +1,10 @@
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe.config
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.pdb
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csprojAssemblyReference.cache
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Form1.resources
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Properties.Resources.resources
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.GenerateResource.cache
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CoreCompileInputs.cache
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
+C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
