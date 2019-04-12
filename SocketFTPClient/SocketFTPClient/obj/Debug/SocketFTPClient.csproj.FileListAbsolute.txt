@@ -8,3 +8,13 @@ C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTP
 C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CoreCompileInputs.cache
 C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
 C:\Users\ssyram\Source\Repos\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe.config
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.pdb
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csprojAssemblyReference.cache
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Form1.resources
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Properties.Resources.resources
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.GenerateResource.cache
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CoreCompileInputs.cache
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
+\\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
