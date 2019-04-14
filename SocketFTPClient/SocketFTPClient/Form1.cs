@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace SocketFTPClient
@@ -19,130 +15,424 @@ namespace SocketFTPClient
             InitializeComponent();
         }
 
-        private const string CRLF = "\r\n";
-        // cmd list
-        private const string CMD_LIST = "LIST" + CRLF;
-        private const string CMD_PASV = "PASV" + CRLF;
-        private const string CMD_ABOR = "ABOR" + CRLF;
-        private const string CMD_QUIT = "QUIT" + CRLF;
-        // cmd format list
-        private const string CMD_FMT_USRNAME = "USER {0}" + CRLF;
-        private const string CMD_FMT_PASSWORD = "PASS {0}" + CRLF;
-        private const string CMD_FMT_UPLOAD = "STOR {0}" + CRLF;
-        private const string CMD_FMT_DOWNLOAD = "RETR {0}" + CRLF;
+        private const string IPv4Match =
+            @"^((2[0-4]\d|25[0-5]|[1]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[1]?\d\d?)$";
+        private const string IPv6Match =
+            @"^([0-9A-Fa-f]{1, 4}:){7}([0-9A-Fa-f]{1, 4})$";
 
-        private const string CONNECT_STRING = "连接";
-        private const string DISCONNECT_STRING = "断开";
-        private const string PASSWORD_ERROR = "密码错误：用户名密码不匹配";
-        private const string CANNOT_CLOSE = "还有部分在执行，暂不能停止";
+        private FtpSupportTcpClient cmd;
+        private bool can_continue;  // mark whether the server support the command of break point and continue
 
-        private TcpClient cmdS;  // server cmd channel
-        private NetworkStream cmdWriter;
-        private StreamReader cmdReader;
-        private TcpClient dataS;  // server data channel
-        private NetworkStream dataWriter;
-        private StreamReader dataReader;
+        // batch tackling all of the box above as well as the check box
+        private void inputBatch(bool act)
+        {
+            BoxIP.Enabled = act;
+            BoxPassword.Enabled = act;
+            BoxPort.Enabled = act;
+            BoxUsername.Enabled = act;
+
+            CBVisible.Enabled = act;
+        }
 
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
             // core run paras
             Cursor cr = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
-            DisableAll();
-            // to check the validity of:
-            // IP, port
+            // disable all
             {
-
+                inputBatch(false);
+                actionBatch(false);
             }
 
             // core run
-            if (ButtonConnect.Text == CONNECT_STRING)
+            if (ButtonConnect.Text == LanguageConstant.CONNECT_STRING)
             {
-                cmdS = new TcpClient(BoxIP.Text, Convert.ToInt32(BoxIP.Text));
+                if (BoxPort.Text.Equals("")) BoxPort.Text = "21";
+                cmd = createClient(BoxIP.Text, Convert.ToUInt16(BoxPort.Text));
+                if (cmd == null)
+                {
+                    MessageBox.Show(LanguageConstant.INVALID_IP_ERROR);
+                    goto brk;
+                }
                 ListBoxLog.Items.Clear();
-                cmdReader = new StreamReader(cmdS.GetStream());
-                cmdWriter = cmdS.GetStream();
-                fillStatus();
 
                 // Login
                 // User Name
-                sendAndLog(
-                    string.Format(
-                        CMD_FMT_USRNAME, BoxUsername.Text));
-                // Password
-                var ret = sendAndLog(
-                    string.Format(
-                        CMD_FMT_PASSWORD, BoxPassword.Text)).Substring(0, 3);
-                if (ret.Equals("530"))
+                string rets = cmd.login(BoxUsername.Text, BoxPassword.Text).Substring(0, 3);
+                if (!rets.Equals("230"))
                 {
-                    MessageBox.Show(PASSWORD_ERROR);
+                    MessageBox.Show(LanguageConstant.PASSWORD_ERROR);
                     goto brk;
                 }
-                refreshRight();
 
-                ButtonConnect.Text = DISCONNECT_STRING;
+                ButtonConnect.Text = LanguageConstant.DISCONNECT_STRING;
                 functionEnable();
-                brk:;
+                goto ret;
+            // means to keep the original disconnection mode
+            brk:
+                inputBatch(true);
             }
-            else if (ButtonConnect.Text == DISCONNECT_STRING)
+            else if (ButtonConnect.Text == LanguageConstant.DISCONNECT_STRING)
             {
                 if (!checkDisconnect())
                 {
-                    MessageBox.Show(CANNOT_CLOSE);
-                    goto brk;
+                    MessageBox.Show(LanguageConstant.CANNOT_CLOSE);
+                    goto brk;  // keep connect
                 }
 
-                sendAndLog(CMD_QUIT);
-                cmdReader.Close();
-                cmdWriter.Close();
+                cmd.quitThis();
+                cmd.closeStreams();
 
-                ButtonConnect.Text = CONNECT_STRING;
+                ButtonConnect.Text = LanguageConstant.CONNECT_STRING;
 
                 setToReadyForLink();
-                brk:;
+                goto ret;
+            brk:
+                actionBatch(true);
             }
             else throw new InvalidDataException("Not a valid string for this button");
+
+        ret:
             Cursor.Current = cr;
+            ButtonConnect.Enabled = true;
         }
 
+        // create a client for this Form
+        private FtpSupportTcpClient createClient(string ip, ushort port)
+        {
+            if (!Regex.IsMatch(BoxIP.Text, IPv4Match) && !Regex.IsMatch(BoxIP.Text, IPv6Match))
+                return null;
+            try
+            {
+                var r = new FtpSupportTcpClient(ip, port, s =>
+                {
+                    ListBoxLog.Items.Add(s);
+                    ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
+                });  // for port is "ushort", no need to check
+                return r;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }        
+
+        // disconnect and recover the UI
         private void setToReadyForLink()
         {
-            throw new NotImplementedException();
+            inputBatch(true);
+            actionBatch(false);
         }
 
-        private void DisableAll()
-        {
-            throw new NotImplementedException();
-        }
-
+        // check whether it's safe for disconnection
         private bool checkDisconnect()
         {
-            throw new NotImplementedException();
+            return task == null;
         }
 
+        // enable all components and for the boxes, initialize them if needed.
         private void functionEnable()
         {
-            throw new NotImplementedException();
+            if (cmd.sendCommand(string.Format(CommandConstant.CMD_FMT_BREAKPOINT, 100)).Substring(0, 3).Equals("503")) can_continue = false;
+            else can_continue = true;
+
+            actionBatch(true);
+            BoxFtpPath.Text = "\\";
+            refreshFtp();
+            refreshLocal();
         }
 
-        private void refreshRight()
+        // $"cd {d}"
+        private void changeFtpDirectory(string d)
         {
-            throw new NotImplementedException();
+            if (d == "..")
+            {
+                if (BoxFtpPath.Text.Equals("\\")) throw new FormatException("It's impossible to return to the uppoer layer of root.");
+            }
+            if (!cmd.sendCommand($"CWD {d}\r\n").Substring(0, 3).Equals("250"))
+            {
+                MessageBox.Show(LanguageConstant.CANNOT_CHANGE_DIRECTORY);
+                return;
+            }
+            if (d == "..") BoxFtpPath.Text = BoxFtpPath.Text.Substring(0, 
+                    BoxFtpPath.Text.Substring(0, BoxFtpPath.Text.LastIndexOf("\\")).LastIndexOf("\\") + 1);
+            else BoxFtpPath.Text += d + "\\";
+            refreshFtp();
         }
 
-        private string sendAndLog(string s)
+        // reload the server box of file
+        private void refreshFtp()
         {
-            var data =
-                System.Text.Encoding.ASCII.GetBytes(
-                    s.ToCharArray()
-                );
-            cmdWriter.Write(data, 0, data.Length);
-            return fillStatus();
+            LVFtp.Items.Clear();
+            if (!BoxFtpPath.Text.Equals("\\"))
+            {
+                ListViewItem it = new ListViewItem();
+                it.Text = "..";
+                it.SubItems.Add("directory");
+                LVFtp.Items.Add(it);
+            }
+            cmd.passiveDataAction(CommandConstant.CMD_LIST, (send, data) =>
+            {
+                StreamReader reader = new StreamReader(data.GetStream(), Encoding.Default);
+                string s;
+                while ((s = reader.ReadLine()) != null)
+                {
+                    var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
+                    ListViewItem it = new ListViewItem();
+                    it.Text = s.Substring(52);
+                    if (s[0] == 'd') it.SubItems.Add("directory");
+                    else it.SubItems.Add(size.ToString());
+                    LVFtp.Items.Add(it);
+                }
+            });
         }
 
-        private string fillStatus()
+        // reload the local list of file
+        private void refreshLocal()
         {
-            throw new NotImplementedException();
+            LVLocal.Items.Clear();
+            string[] filenames = Directory.GetFiles(BoxLocalAddress.Text, "*.*");
+            foreach (string file in filenames)
+            {
+                var size = new FileInfo(file).Length;
+                ListViewItem it = new ListViewItem();
+                var tmp = Regex.Split(file, @"\\");
+                it.Text = tmp[tmp.Length - 1];
+                it.SubItems.Add(size.ToString());
+                LVLocal.Items.Add(it);
+            }
+        }
+
+        // the batch enable operation for action part of the UI.
+        // the UI is generally divided into two parts: 
+        // the first one is input part which should only be used before connection
+        // the second is action part which, on the opposite, should only be used after connection
+        private void actionBatch(bool act)
+        {
+            ButtonUpload.Enabled = act;
+            ButtonDownload.Enabled = act;
+            ButtonPath.Enabled = act;
+            ButtonPause.Enabled = act;
+            ButtonRefreshLocal.Enabled = act;
+            ButtonRefreshFtp.Enabled = act;
+            ButtonStop.Enabled = act;
+
+            LVLocal.Enabled = act;
+            LVFtp.Enabled = act;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            actionBatch(false);
+            BoxLocalAddress.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            refreshLocal();
+            CheckForIllegalCrossThreadCalls = false;
+            // just for test
+            //BoxIP.Text = "192.168.56.1";
+            //BoxUsername.Text = "aaaaa";
+            //BoxPassword.Text = "123";
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        // input restriction
+        private void BoxPort_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsNumber(e.KeyChar))
+            {
+                e.Handled = true;
+                //if (e.KeyChar == '0' && BoxPort.Text == "") return;
+                BoxPort.Text += e.KeyChar;
+                BoxPort.Select(BoxPort.Text.Length, 0);  // focus on the last one
+                if (Convert.ToInt32(BoxPort.Text) > 65535)
+                {
+                    BoxPort.Text = "65535";
+                    BoxPort.Select(BoxPort.Text.Length, 0);
+                }
+            }
+            else if (e.KeyChar == (char)8) return;
+            else e.Handled = true;
+        }
+
+        private void CBVisible_CheckedChanged(object sender, EventArgs e)
+        {
+            if (BoxPassword.PasswordChar == '*')
+                BoxPassword.PasswordChar = '\0';
+            else
+                BoxPassword.PasswordChar = '*';
+        }
+
+        TransferTask task = null;
+
+        // create a new task to run
+        private void startRunning(string fileName, TransferTask.TaskType type, long size)
+        {
+            PBRunning.Value = 0;
+            LabelTask.Text = string.Format(
+                type == TransferTask.TaskType.upload ? LanguageConstant.UPLOADING_FMT : LanguageConstant.DOWNLOADING_FMT,
+                fileName);
+            runningPartBatch(false);
+            task = new TransferTask(
+                cmd, nsize => 
+                    PBRunning.Value = (int)(100 * nsize / size), () =>
+                {
+                    task = null;
+                    PBRunning.Value = 100;
+                    LabelTask.Text = LanguageConstant.FINISHED_STRING;
+                    runningPartBatch(true);
+                    if (type == TransferTask.TaskType.upload) refreshFtp();
+                    else refreshLocal();
+                }, s=>
+                {
+                    MessageBox.Show(s);
+                    task = null;
+                    LabelTask.Text = s;
+                    runningPartBatch(true);
+                }, BoxLocalAddress.Text, BoxFtpPath.Text, fileName, type);
+            task.run();
+        }
+
+        //List<TransferTask> taskDelegate = new List<TransferTask>();
+
+        //private TransferTask createTask(string fileName, bool isUpload, long size)
+        //{
+            
+        //    var r = new TransferTask(
+        //        cmd,
+        //        LVTask, taskDelegate.Count, LabelTask, ButtonPause, taskDelegate,
+        //        BoxLocalAddress.Text, BoxFtpPath.Text, fileName, 
+        //        isUpload ? TransferTask.TaskType.upload : TransferTask.TaskType.download, size
+        //    );
+        //    taskDelegate.Add(r);
+        //    ListViewItem it = new ListViewItem();
+        //    it.Text = fileName;
+        //    Action<string> add = s => it.SubItems.Add(s);
+        //    add(isUpload ? LanguageConstant.UPLOAD_STRING : LanguageConstant.DOWNLOAD_STRING);
+        //    add("0");
+        //    add(size.ToString());
+        //    add(LanguageConstant.RUNNING_STRING);
+        //    LVTask.Items.Add(it);
+        //    r.run();
+        //    return r;
+        //}
+
+        //private void selectTask(int index)
+        //{
+
+        //}
+
+        private void ButtonRefreshLocal_Click(object sender, EventArgs e)
+        {
+            refreshLocal();
+        }
+
+        private void ButtonRefreshFtp_Click(object sender, EventArgs e)
+        {
+            refreshFtp();
+        }
+
+        private void ButtonPath_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fb = new FolderBrowserDialog();
+            if (fb.ShowDialog() == DialogResult.OK)
+            {
+                ListBoxLog.Items.Add("Change Local Directory to: " + fb.SelectedPath);
+                ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
+                BoxLocalAddress.Text = fb.SelectedPath;
+                refreshLocal();
+            }
+        }
+
+        private void ButtonPause_Click(object sender, EventArgs e)
+        {
+            if (!can_continue)
+            {
+                MessageBox.Show(LanguageConstant.PAUSE_NOT_SUPPORT_ERROR);
+                return;
+            }
+            if (ButtonPause.Text.Equals(LanguageConstant.PAUSE_STRING))
+            {
+                if (task == null) throw new FormatException("No Task is Running");
+                task.stop();
+                LabelTask.Text = string.Format(
+                    task.Type == TransferTask.TaskType.upload ? LanguageConstant.PAUSE_UPLOAD_FMT : LanguageConstant.PAUSE_DOWNLOAD_FMT,
+                    task.FileName);
+            }
+            else
+            {
+                if (task == null) throw new FormatException("No Task is Running");
+                task.continueRunning();
+                LabelTask.Text = string.Format(
+                    task.Type == TransferTask.TaskType.upload ? LanguageConstant.UPLOADING_FMT : LanguageConstant.DOWNLOADING_FMT,
+                    task.FileName);
+            }
+        }
+
+        // enter the mode of running downloading
+        // the influence is focused in UI
+        // when running, some part of the "Action UI" should be disabled
+        // after which they should function as usual.
+        private void runningPartBatch(bool act)
+        {
+            ButtonPath.Enabled = act;
+            LVLocal.Enabled = act;
+            LVFtp.Enabled = act;
+            ButtonUpload.Enabled = act;
+            ButtonDownload.Enabled = act;
+            ButtonRefreshLocal.Enabled = act;
+            ButtonRefreshFtp.Enabled = act;
+
+            ButtonStop.Enabled = !act;
+            ButtonPause.Enabled = !act;
+        }
+
+        // Just stop but not ready to continue the task
+        private void ButtonStop_Click(object sender, EventArgs e)
+        {
+            if (task == null) throw new FormatException("No Task Is Running");
+            task.stop();
+            task = null;
+            runningPartBatch(true);
+        }
+
+        private void uploadItem()
+        {
+            if (LVLocal.SelectedIndices.Count != 1) return;
+            startRunning(LVLocal.SelectedItems[0].Text, TransferTask.TaskType.upload, Convert.ToInt64(LVLocal.SelectedItems[0].SubItems[1].Text));
+        }
+
+        private void ButtonUpload_Click(object sender, EventArgs e)
+        {
+            uploadItem();
+        }
+
+        private void downloadItem()
+        {
+            if (LVFtp.SelectedIndices.Count != 1) return;
+            if (LVFtp.SelectedItems[0].SubItems[1].Text == "directory")
+            {
+                changeFtpDirectory(LVFtp.SelectedItems[0].Text);
+            }
+            else startRunning(LVFtp.SelectedItems[0].Text, TransferTask.TaskType.download, Convert.ToInt64(LVFtp.SelectedItems[0].SubItems[1].Text));
+        }
+
+        private void ButtonDownload_Click(object sender, EventArgs e)
+        {
+            downloadItem();
+        }
+
+        private void LVFtp_DoubleClick(object sender, EventArgs e)
+        {
+            downloadItem();
+        }
+
+        private void LVLocal_DoubleClick(object sender, EventArgs e)
+        {
+            uploadItem();
         }
     }
 }
