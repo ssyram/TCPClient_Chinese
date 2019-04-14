@@ -220,6 +220,9 @@ namespace SocketFTPClient
 
             LVLocal.Enabled = act;
             LVFtp.Enabled = act;
+
+            if (task == null) runningPartBatch(true);
+            else runningPartBatch(false);
         }
 
         private void Form1_Load(object sender, EventArgs e)

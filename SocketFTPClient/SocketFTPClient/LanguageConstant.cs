@@ -26,8 +26,8 @@ namespace SocketFTPClient
         public const string ACCESS_DENY_ERROR = "目标服务器拒绝访问";
         public const string CANNOT_OPEN_FILE = "本地文件拒绝访问";
         public const string PAUSE_NOT_SUPPORT_ERROR = "目标服务器不支持暂停续传";
-        public const string UPLOAD_NOT_SUPPORT_ERROR = "目标服务器不支持上传操作";
-        public const string DOWNLOAD_NOT_SUPPORT_ERROR = "目标服务器不支持下载操作";
+        public const string UPLOAD_NOT_SUPPORT_ERROR = "上传失败（原因猜测：目标服务器不支持上传或目标服务器有同名文件）";
+        public const string DOWNLOAD_NOT_SUPPORT_ERROR = "下载失败（原因猜测：目标服务器不支持下载）";
         public const string PASSWORD_ERROR = "密码错误：用户名密码不匹配";
         public const string CANNOT_CLOSE = "还有部分在执行，暂不能停止";
         public const string CANNOT_CHANGE_DIRECTORY = "不能改变路径（原因可能是服务器端不支持非ASCII的字符串读取）";
