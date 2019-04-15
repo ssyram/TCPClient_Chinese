@@ -258,6 +258,9 @@ namespace SocketFTPClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //load skin file and set to the form
+            skinEngine.SkinFile = Application.StartupPath + @"\SportsBlack.ssk";
+
             actionBatch(false);
             BoxLocalAddress.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             refreshLocal();
@@ -467,6 +470,20 @@ namespace SocketFTPClient
         private void LVLocal_DoubleClick(object sender, EventArgs e)
         {
             uploadItem();
+        }
+
+        private void buttonLog_Click(object sender, EventArgs e)
+        {
+            if(buttonLog.Text == LanguageConstant.SHOW_LOG)
+            {
+                buttonLog.Text = LanguageConstant.HIDE_LOG;
+                this.Height = 470;
+            }
+            else
+            {
+                buttonLog.Text = LanguageConstant.SHOW_LOG;
+                this.Height = 320;
+            }
         }
     }
 }
