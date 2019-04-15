@@ -48,6 +48,7 @@ namespace SocketFTPClient
             // core run
             if (ButtonConnect.Text == LanguageConstant.CONNECT_STRING)
             {
+                BoxUsername.Text = BoxUsername.Text.Trim();
                 if (BoxPort.Text.Equals("")) BoxPort.Text = "21";
                 cmd = createClient(BoxIP.Text, Convert.ToUInt16(BoxPort.Text));
                 if (cmd == null)
