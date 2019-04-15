@@ -28,3 +28,12 @@ D:\WorkPlace\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\
 D:\WorkPlace\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CoreCompileInputs.cache
 D:\WorkPlace\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
 D:\WorkPlace\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe.config
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.pdb
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csprojResolveAssemblyReference.cache
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Form1.resources
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Properties.Resources.resources
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.GenerateResource.Cache
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
+G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
