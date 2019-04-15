@@ -31,5 +31,8 @@ namespace SocketFTPClient
         public const string PASSWORD_ERROR = "密码错误：用户名密码不匹配";
         public const string CANNOT_CLOSE = "还有部分在执行，暂不能停止";
         public const string CANNOT_CHANGE_DIRECTORY = "不能改变路径（原因可能是服务器端不支持非ASCII的字符串读取）";
+
+        public const string SHOW_LOG = "LOG ↓";
+        public const string HIDE_LOG = "LOG ↑";
     }
 }

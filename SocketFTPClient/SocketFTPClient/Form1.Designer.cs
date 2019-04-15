@@ -28,6 +28,7 @@
         /// </summary>
         public void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.label1 = new System.Windows.Forms.Label();
             this.BoxIP = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -43,7 +44,6 @@
             this.ButtonPath = new System.Windows.Forms.Button();
             this.LabelFtpPath = new System.Windows.Forms.Label();
             this.ListBoxLog = new System.Windows.Forms.ListBox();
-            this.LabelLog = new System.Windows.Forms.Label();
             this.BoxFtpPath = new System.Windows.Forms.TextBox();
             this.LVLocal = new System.Windows.Forms.ListView();
             this.LocalFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -59,6 +59,8 @@
             this.ButtonRefreshLocal = new System.Windows.Forms.Button();
             this.ButtonRefreshFtp = new System.Windows.Forms.Button();
             this.ButtonStop = new System.Windows.Forms.Button();
+            this.skinEngine = new Sunisoft.IrisSkin.SkinEngine();
+            this.buttonLog = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -193,21 +195,11 @@
             // 
             this.ListBoxLog.FormattingEnabled = true;
             this.ListBoxLog.ItemHeight = 12;
-            this.ListBoxLog.Location = new System.Drawing.Point(15, 302);
+            this.ListBoxLog.Location = new System.Drawing.Point(15, 290);
             this.ListBoxLog.Margin = new System.Windows.Forms.Padding(2);
             this.ListBoxLog.Name = "ListBoxLog";
-            this.ListBoxLog.Size = new System.Drawing.Size(778, 136);
+            this.ListBoxLog.Size = new System.Drawing.Size(778, 124);
             this.ListBoxLog.TabIndex = 14;
-            // 
-            // LabelLog
-            // 
-            this.LabelLog.AutoSize = true;
-            this.LabelLog.Location = new System.Drawing.Point(13, 288);
-            this.LabelLog.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.LabelLog.Name = "LabelLog";
-            this.LabelLog.Size = new System.Drawing.Size(29, 12);
-            this.LabelLog.TabIndex = 15;
-            this.LabelLog.Text = "日志";
             // 
             // BoxFtpPath
             // 
@@ -272,9 +264,9 @@
             // 
             // ButtonUpload
             // 
-            this.ButtonUpload.Location = new System.Drawing.Point(15, 249);
+            this.ButtonUpload.Location = new System.Drawing.Point(90, 251);
             this.ButtonUpload.Name = "ButtonUpload";
-            this.ButtonUpload.Size = new System.Drawing.Size(75, 23);
+            this.ButtonUpload.Size = new System.Drawing.Size(70, 23);
             this.ButtonUpload.TabIndex = 19;
             this.ButtonUpload.Text = "上传";
             this.ButtonUpload.UseVisualStyleBackColor = true;
@@ -282,7 +274,7 @@
             // 
             // ButtonDownload
             // 
-            this.ButtonDownload.Location = new System.Drawing.Point(718, 249);
+            this.ButtonDownload.Location = new System.Drawing.Point(718, 252);
             this.ButtonDownload.Name = "ButtonDownload";
             this.ButtonDownload.Size = new System.Drawing.Size(75, 23);
             this.ButtonDownload.TabIndex = 20;
@@ -292,16 +284,16 @@
             // 
             // PBRunning
             // 
-            this.PBRunning.Location = new System.Drawing.Point(411, 248);
+            this.PBRunning.Location = new System.Drawing.Point(411, 251);
             this.PBRunning.Name = "PBRunning";
             this.PBRunning.Size = new System.Drawing.Size(182, 23);
             this.PBRunning.TabIndex = 21;
             // 
             // ButtonPause
             // 
-            this.ButtonPause.Location = new System.Drawing.Point(310, 248);
+            this.ButtonPause.Location = new System.Drawing.Point(315, 251);
             this.ButtonPause.Name = "ButtonPause";
-            this.ButtonPause.Size = new System.Drawing.Size(75, 23);
+            this.ButtonPause.Size = new System.Drawing.Size(70, 23);
             this.ButtonPause.TabIndex = 22;
             this.ButtonPause.Text = "暂停";
             this.ButtonPause.UseVisualStyleBackColor = true;
@@ -311,7 +303,7 @@
             // 
             this.LabelTask.AutoSize = true;
             this.LabelTask.BackColor = System.Drawing.Color.Transparent;
-            this.LabelTask.Location = new System.Drawing.Point(409, 274);
+            this.LabelTask.Location = new System.Drawing.Point(482, 256);
             this.LabelTask.Name = "LabelTask";
             this.LabelTask.Size = new System.Drawing.Size(41, 12);
             this.LabelTask.TabIndex = 23;
@@ -319,9 +311,9 @@
             // 
             // ButtonRefreshLocal
             // 
-            this.ButtonRefreshLocal.Location = new System.Drawing.Point(96, 249);
+            this.ButtonRefreshLocal.Location = new System.Drawing.Point(165, 251);
             this.ButtonRefreshLocal.Name = "ButtonRefreshLocal";
-            this.ButtonRefreshLocal.Size = new System.Drawing.Size(75, 23);
+            this.ButtonRefreshLocal.Size = new System.Drawing.Size(70, 23);
             this.ButtonRefreshLocal.TabIndex = 24;
             this.ButtonRefreshLocal.Text = "刷新";
             this.ButtonRefreshLocal.UseVisualStyleBackColor = true;
@@ -329,7 +321,7 @@
             // 
             // ButtonRefreshFtp
             // 
-            this.ButtonRefreshFtp.Location = new System.Drawing.Point(637, 248);
+            this.ButtonRefreshFtp.Location = new System.Drawing.Point(637, 251);
             this.ButtonRefreshFtp.Name = "ButtonRefreshFtp";
             this.ButtonRefreshFtp.Size = new System.Drawing.Size(75, 23);
             this.ButtonRefreshFtp.TabIndex = 25;
@@ -339,19 +331,39 @@
             // 
             // ButtonStop
             // 
-            this.ButtonStop.Location = new System.Drawing.Point(229, 248);
+            this.ButtonStop.Location = new System.Drawing.Point(240, 251);
             this.ButtonStop.Name = "ButtonStop";
-            this.ButtonStop.Size = new System.Drawing.Size(75, 23);
+            this.ButtonStop.Size = new System.Drawing.Size(70, 23);
             this.ButtonStop.TabIndex = 26;
-            this.ButtonStop.Text = "中止任务";
+            this.ButtonStop.Text = "中止";
             this.ButtonStop.UseVisualStyleBackColor = true;
             this.ButtonStop.Click += new System.EventHandler(this.ButtonStop_Click);
+            // 
+            // skinEngine
+            // 
+            this.skinEngine.@__DrawButtonFocusRectangle = true;
+            this.skinEngine.DisabledButtonTextColor = System.Drawing.Color.Gray;
+            this.skinEngine.DisabledMenuFontColor = System.Drawing.SystemColors.GrayText;
+            this.skinEngine.InactiveCaptionColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.skinEngine.SerialNumber = "";
+            this.skinEngine.SkinFile = null;
+            // 
+            // buttonLog
+            // 
+            this.buttonLog.Location = new System.Drawing.Point(15, 251);
+            this.buttonLog.Name = "buttonLog";
+            this.buttonLog.Size = new System.Drawing.Size(65, 23);
+            this.buttonLog.TabIndex = 27;
+            this.buttonLog.Text = "LOG ↓";
+            this.buttonLog.UseVisualStyleBackColor = true;
+            this.buttonLog.Click += new System.EventHandler(this.buttonLog_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(806, 450);
+            this.ClientSize = new System.Drawing.Size(806, 281);
+            this.Controls.Add(this.buttonLog);
             this.Controls.Add(this.ButtonStop);
             this.Controls.Add(this.ButtonRefreshFtp);
             this.Controls.Add(this.ButtonRefreshLocal);
@@ -363,7 +375,6 @@
             this.Controls.Add(this.LVFtp);
             this.Controls.Add(this.LVLocal);
             this.Controls.Add(this.BoxFtpPath);
-            this.Controls.Add(this.LabelLog);
             this.Controls.Add(this.ListBoxLog);
             this.Controls.Add(this.LabelFtpPath);
             this.Controls.Add(this.ButtonPath);
@@ -380,6 +391,7 @@
             this.Controls.Add(this.BoxIP);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "简易FTP客户端";
@@ -407,7 +419,6 @@
         public System.Windows.Forms.Button ButtonPath;
         public System.Windows.Forms.Label LabelFtpPath;
         public System.Windows.Forms.ListBox ListBoxLog;
-        public System.Windows.Forms.Label LabelLog;
         public System.Windows.Forms.TextBox BoxFtpPath;
         public System.Windows.Forms.ListView LVLocal;
         public System.Windows.Forms.ListView LVFtp;
@@ -423,6 +434,8 @@
         public System.Windows.Forms.ColumnHeader FtpFileName;
         public System.Windows.Forms.ColumnHeader FtpFileSize;
         public System.Windows.Forms.Button ButtonStop;
+        private Sunisoft.IrisSkin.SkinEngine skinEngine;
+        private System.Windows.Forms.Button buttonLog;
     }
 }
 
