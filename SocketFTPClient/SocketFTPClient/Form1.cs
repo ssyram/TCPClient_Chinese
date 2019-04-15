@@ -181,7 +181,18 @@ namespace SocketFTPClient
                 {
                     var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
                     ListViewItem it = new ListViewItem();
-                    it.Text = s.Substring(52);
+
+                    /*
+                     * Reeker - fix bug with FTP filename
+                     * before this, filename for files which are not modified this year will lose its first char
+                     * */
+                    // get the filename according to whether the file is modified this year
+                    if (s[48] == ':')
+                        it.Text = s.Substring(52);
+                    else
+                        it.Text = s.Substring(51);
+                    //end  
+
                     if (s[0] == 'd') it.SubItems.Add("directory");
                     else it.SubItems.Add(size.ToString());
                     LVFtp.Items.Add(it);
