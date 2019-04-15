@@ -182,16 +182,35 @@ namespace SocketFTPClient
                     var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
                     ListViewItem it = new ListViewItem();
 
-                    /*
-                     * Reeker - fix bug with FTP filename
-                     * before this, filename for files which are not modified this year will lose its first char
-                     * */
-                    // get the filename according to whether the file is modified this year
-                    if (s[48] == ':')
-                        it.Text = s.Substring(52);
-                    else
-                        it.Text = s.Substring(51);
-                    //end  
+                    // a simple function for finding elements, does not consider generality and robustness
+                    // for it's only used here.
+                    Func<string, int, int> findNthSection = (str, n) =>
+                    {
+                        int start = 0;
+                        while (str[start] == ' ') ++start;
+                        int count = 0;
+                        bool cont = false;
+                        while (start < str.Length)
+                            if (str[start++] == ' ')
+                                if (!cont) cont = true;
+                                else;
+                            else if (cont)
+                                if (++count == n) return start - 1;
+                                else cont = false;
+                        return start;
+                    };
+                    it.Text = s.Substring(findNthSection(s, 8));
+
+                    ///*
+                    // * Reeker - fix bug with FTP filename
+                    // * before this, filename for files which are not modified this year will lose its first char
+                    // * */
+                    //// get the filename according to whether the file is modified this year
+                    //if (s[48] == ':')
+                    //    it.Text = s.Substring(52);
+                    //else
+                    //    it.Text = s.Substring(51);
+                    ////end  
 
                     if (s[0] == 'd') it.SubItems.Add("directory");
                     else it.SubItems.Add(size.ToString());
