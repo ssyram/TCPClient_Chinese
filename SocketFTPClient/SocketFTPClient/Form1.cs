@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -22,6 +23,10 @@ namespace SocketFTPClient
 
         private FtpSupportTcpClient cmd;
         private bool can_continue;  // mark whether the server support the command of break point and continue
+
+        TransferTask task = null;
+
+
 
         // batch tackling all of the box above as well as the check box
         private void inputBatch(bool act)
@@ -70,8 +75,8 @@ namespace SocketFTPClient
                 ButtonConnect.Text = LanguageConstant.DISCONNECT_STRING;
                 functionEnable();
                 goto ret;
-            // means to keep the original disconnection mode
-            brk:
+                // means to keep the original disconnection mode
+                brk:
                 inputBatch(true);
             }
             else if (ButtonConnect.Text == LanguageConstant.DISCONNECT_STRING)
@@ -82,19 +87,24 @@ namespace SocketFTPClient
                     goto brk;  // keep connect
                 }
 
-                cmd.quitThis();
+                // rsy56640
+                // server might disconnect before client.
+                if (task != null)
+                {
+                    cmd.quitThis();
+                }
                 cmd.closeStreams();
 
                 ButtonConnect.Text = LanguageConstant.CONNECT_STRING;
 
                 setToReadyForLink();
                 goto ret;
-            brk:
+                brk:
                 actionBatch(true);
             }
             else throw new InvalidDataException("Not a valid string for this button");
 
-        ret:
+            ret:
             Cursor.Current = cr;
             ButtonConnect.Enabled = true;
         }
@@ -117,7 +127,7 @@ namespace SocketFTPClient
             {
                 return null;
             }
-        }        
+        }
 
         // disconnect and recover the UI
         private void setToReadyForLink()
@@ -156,7 +166,7 @@ namespace SocketFTPClient
                 MessageBox.Show(LanguageConstant.CANNOT_CHANGE_DIRECTORY);
                 return;
             }
-            if (d == "..") BoxFtpPath.Text = BoxFtpPath.Text.Substring(0, 
+            if (d == "..") BoxFtpPath.Text = BoxFtpPath.Text.Substring(0,
                     BoxFtpPath.Text.Substring(0, BoxFtpPath.Text.LastIndexOf("\\")).LastIndexOf("\\") + 1);
             else BoxFtpPath.Text += d + "\\";
             refreshFtp();
@@ -173,50 +183,74 @@ namespace SocketFTPClient
                 it.SubItems.Add("directory");
                 LVFtp.Items.Add(it);
             }
-            cmd.passiveDataAction(CommandConstant.CMD_LIST, (send, data) =>
+
+
+            // rsy56640
+            // consider when no task or no connection.
+            // and use `Select` to detect the whether the connection is ok.
+            if (cmd == null)
             {
-                StreamReader reader = new StreamReader(data.GetStream(), Encoding.Default);
-                string s;
-                while ((s = reader.ReadLine()) != null)
+                return;
+            }
+
+            ArrayList writeList = new ArrayList();
+            writeList.Add(cmd.tcp.Client);
+            ArrayList listenList = new ArrayList();
+            listenList.Add(cmd.tcp.Client);
+            Socket.Select(listenList, writeList, null, 1000);
+
+            if (listenList.Count == 0)// || writeList.Count != 0)
+            {
+                cmd.passiveDataAction(CommandConstant.CMD_LIST, (send, data) =>
                 {
-                    var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
-                    ListViewItem it = new ListViewItem();
-
-                    // a simple function for finding elements, does not consider generality and robustness
-                    // for it's only used here.
-                    Func<string, int, int> findNthSection = (str, n) =>
+                    StreamReader reader = new StreamReader(data.GetStream(), Encoding.Default);
+                    string s;
+                    while ((s = reader.ReadLine()) != null)
                     {
-                        int start = 0;
-                        while (str[start] == ' ') ++start;
-                        int count = 0;
-                        bool cont = false;
-                        while (start < str.Length)
-                            if (str[start++] == ' ')
-                                if (!cont) cont = true;
-                                else;
-                            else if (cont)
-                                if (++count == n) return start - 1;
-                                else cont = false;
-                        return start;
-                    };
-                    it.Text = s.Substring(findNthSection(s, 8));
+                        var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
+                        ListViewItem it = new ListViewItem();
 
-                    ///*
-                    // * Reeker - fix bug with FTP filename
-                    // * before this, filename for files which are not modified this year will lose its first char
-                    // * */
-                    //// get the filename according to whether the file is modified this year
-                    //if (s[48] == ':')
-                    //    it.Text = s.Substring(52);
-                    //else
-                    //    it.Text = s.Substring(51);
-                    ////end  
+                        // a simple function for finding elements, does not consider generality and robustness
+                        // for it's only used here.
+                        Func<string, int, int> findNthSection = (str, n) =>
+                            {
+                                int start = 0;
+                                while (str[start] == ' ') ++start;
+                                int count = 0;
+                                bool cont = false;
+                                while (start < str.Length)
+                                    if (str[start++] == ' ')
+                                        if (!cont) cont = true;
+                                        else;
+                                    else if (cont)
+                                        if (++count == n) return start - 1;
+                                        else cont = false;
+                                return start;
+                            };
+                        it.Text = s.Substring(findNthSection(s, 8));
 
-                    if (s[0] == 'd') it.SubItems.Add("directory");
-                    else it.SubItems.Add(size.ToString());
-                    LVFtp.Items.Add(it);
-                }
-            });
+                        ///*
+                        // * Reeker - fix bug with FTP filename
+                        // * before this, filename for files which are not modified this year will lose its first char
+                        // * */
+                        //// get the filename according to whether the file is modified this year
+                        //if (s[48] == ':')
+                        //    it.Text = s.Substring(52);
+                        //else
+                        //    it.Text = s.Substring(51);
+                        ////end  
+
+                        if (s[0] == 'd') it.SubItems.Add("directory");
+                        else it.SubItems.Add(size.ToString());
+                        LVFtp.Items.Add(it);
+                    }
+                });
+            }
+            else
+            {
+                //cmd.tcp.Client.Close();
+                task = null;
+            }
         }
 
         // reload the local list of file
@@ -273,7 +307,17 @@ namespace SocketFTPClient
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            if (task != null)
+            {
+                task.stop();
+            }
+            if (cmd != null)
+            {
+                cmd.closeStreams();
+                cmd.tcp.GetStream().Close();
+                cmd.tcp.Close();
+                cmd.quitThis();
+            }
         }
 
         // input restriction
@@ -303,8 +347,6 @@ namespace SocketFTPClient
                 BoxPassword.PasswordChar = '*';
         }
 
-        TransferTask task = null;
-
         // create a new task to run
         private void startRunning(string fileName, TransferTask.TaskType type, long size)
         {
@@ -314,7 +356,7 @@ namespace SocketFTPClient
                 fileName);
             runningPartBatch(false);
             task = new TransferTask(
-                cmd, nsize => 
+                cmd, nsize =>
                     PBRunning.Value = (int)(100 * nsize / size), () =>
                 {
                     task = null;
@@ -323,7 +365,7 @@ namespace SocketFTPClient
                     runningPartBatch(true);
                     if (type == TransferTask.TaskType.upload) refreshFtp();
                     else refreshLocal();
-                }, s=>
+                }, s =>
                 {
                     MessageBox.Show(s);
                     task = null;
@@ -337,7 +379,7 @@ namespace SocketFTPClient
 
         //private TransferTask createTask(string fileName, bool isUpload, long size)
         //{
-            
+
         //    var r = new TransferTask(
         //        cmd,
         //        LVTask, taskDelegate.Count, LabelTask, ButtonPause, taskDelegate,
@@ -474,7 +516,7 @@ namespace SocketFTPClient
 
         private void buttonLog_Click(object sender, EventArgs e)
         {
-            if(buttonLog.Text == LanguageConstant.SHOW_LOG)
+            if (buttonLog.Text == LanguageConstant.SHOW_LOG)
             {
                 buttonLog.Text = LanguageConstant.HIDE_LOG;
                 this.Height = 470;

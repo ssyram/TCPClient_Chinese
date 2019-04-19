@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace SocketFTPClient
 {
@@ -16,7 +17,17 @@ namespace SocketFTPClient
 
         public string waitForResponse()
         {
-            string s = reader.ReadLine();
+            string s = "";
+            try
+            {
+                s = reader.ReadLine();
+            }
+            catch (System.ObjectDisposedException)
+            {
+                MessageBox.Show("TCP connection has been closed.");
+                tcp.GetStream().Close();
+                tcp.Close();
+            }
             log(s);
             return s;
         }

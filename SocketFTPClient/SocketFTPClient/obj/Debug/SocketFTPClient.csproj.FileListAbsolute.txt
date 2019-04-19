@@ -37,3 +37,13 @@ G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClie
 G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.GenerateResource.Cache
 G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
 G:\Git\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Form1.resources
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.Properties.Resources.resources
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.GenerateResource.cache
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CoreCompileInputs.cache
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.exe
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.pdb
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe.config
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.pdb
+D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CopyComplete
