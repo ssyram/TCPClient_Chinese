@@ -55,7 +55,15 @@ namespace SocketFTPClient
             {
                 BoxIP.Text = Regex.Replace(BoxIP.Text, @"\s", "");
                 if (BoxPort.Text.Equals("")) BoxPort.Text = "21";
-                cmd = createClient(BoxIP.Text, Convert.ToUInt16(BoxPort.Text));
+                /* evan_choo: the try-catch block is added here. if there is an exception, there is connection error*/
+                try {
+                    cmd = createClient(BoxIP.Text, Convert.ToUInt16(BoxPort.Text));
+                } catch (Exception)
+                {
+                    MessageBox.Show(LanguageConstant.CONNECTION_ERROR);
+                    goto brk;
+                }
+                
                 if (cmd == null)
                 {
                     MessageBox.Show(LanguageConstant.INVALID_IP_ERROR);
@@ -113,20 +121,23 @@ namespace SocketFTPClient
         private FtpSupportTcpClient createClient(string ip, ushort port)
         {
             if (!Regex.IsMatch(BoxIP.Text, IPv4Match) && !Regex.IsMatch(BoxIP.Text, IPv6Match))
+                //IP address is not valid
                 return null;
-            try
+            /* evan_choo: this try-catch block is deleted and the exception is thrown to the method buttonConnection_click*/
+            //try
+            //{
+            var r = new FtpSupportTcpClient(ip, port, s =>
             {
-                var r = new FtpSupportTcpClient(ip, port, s =>
-                {
-                    ListBoxLog.Items.Add(s);
-                    ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
-                });  // for port is "ushort", no need to check
-                return r;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+                ListBoxLog.Items.Add(s);
+                ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
+            });  // for port is "ushort", no need to check
+            return r;
+            //}
+            //catch (Exception e)
+            //{
+            //    //connnection error
+            //    throw e;
+            //}
         }
 
         // disconnect and recover the UI
@@ -295,16 +306,16 @@ namespace SocketFTPClient
         private void Form1_Load(object sender, EventArgs e)
         {
             //load skin file and set to the form
-            skinEngine.SkinFile = Application.StartupPath + @"\SportsBlack.ssk";
+            //skinEngine.SkinFile = Application.StartupPath + @"\SportsBlack.ssk";
 
             actionBatch(false);
             BoxLocalAddress.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             refreshLocal();
             CheckForIllegalCrossThreadCalls = false;
             // just for test
-            //BoxIP.Text = "192.168.56.1";
-            //BoxUsername.Text = "aaaaa";
-            //BoxPassword.Text = "123";
+            BoxIP.Text = "10.211.55.3";
+            BoxUsername.Text = "123";
+            BoxPassword.Text = "123";
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -315,10 +326,10 @@ namespace SocketFTPClient
             }
             if (cmd != null)
             {
-                cmd.closeStreams();
-                cmd.tcp.GetStream().Close();
-                cmd.tcp.Close();
+                // rsy56640 & evan_choo
                 cmd.quitThis();
+                cmd.closeStreams();
+                cmd.tcp.Close();
             }
         }
 
@@ -527,6 +538,17 @@ namespace SocketFTPClient
             {
                 buttonLog.Text = LanguageConstant.SHOW_LOG;
                 this.Height = 320;
+            }
+        }
+
+        /* evan_choo: added open local path*/
+        private void buttonOpen_Click(object sender, EventArgs e)
+        {
+            string localPath = BoxLocalAddress.Text.Trim();
+
+            if (localPath.Length != 0)
+            {
+                System.Diagnostics.Process.Start("Explorer.exe", localPath);
             }
         }
     }

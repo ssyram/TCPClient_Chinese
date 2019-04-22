@@ -34,5 +34,8 @@ namespace SocketFTPClient
 
         public const string SHOW_LOG = "LOG ↓";
         public const string HIDE_LOG = "LOG ↑";
+
+        /* evan_choo: this const string is added to show a connection error*/
+        public const string CONNECTION_ERROR = "连接超时或者出错";
     }
 }
