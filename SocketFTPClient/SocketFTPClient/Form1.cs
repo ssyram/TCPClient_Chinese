@@ -109,6 +109,9 @@ namespace SocketFTPClient
                 goto ret;
                 brk:
                 actionBatch(true);
+
+                if (task == null) runningPartBatch(true);
+                else runningPartBatch(false);
             }
             else throw new InvalidDataException("Not a valid string for this button");
 
@@ -296,9 +299,6 @@ namespace SocketFTPClient
 
             LVLocal.Enabled = act;
             LVFtp.Enabled = act;
-
-            if (task == null) runningPartBatch(true);
-            else runningPartBatch(false);
         }
 
         private void Form1_Load(object sender, EventArgs e)
