@@ -221,8 +221,6 @@ namespace SocketFTPClient
                         var size = Convert.ToUInt64(Regex.Match(s.Substring(24), @"\d+").ToString());
                         ListViewItem it = new ListViewItem();
 
-                        // ssyram:
-                        // As bugs found by Reeker, some format may not begin on just right index 52.
                         // a simple function for finding elements, does not consider generality and robustness
                         // for it's only used here.
                         Func<string, int, int> findNthSection = (str, n) =>

@@ -47,5 +47,8 @@ D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\
 D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.exe
 D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\bin\Debug\SocketFTPClient.pdb
 D:\Git_repositories\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CopyComplete
+<<<<<<< HEAD
 D:\WorkPlace\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CopyComplete
 \\Mac\Home\Documents\GitHub\TCPClient_Chinese\SocketFTPClient\SocketFTPClient\obj\Debug\SocketFTPClient.csproj.CopyComplete
+=======
+>>>>>>> parent of bb90f6e... Add some comment.
