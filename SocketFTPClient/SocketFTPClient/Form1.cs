@@ -104,6 +104,7 @@ namespace SocketFTPClient
                 cmd.closeStreams();
 
                 ButtonConnect.Text = LanguageConstant.CONNECT_STRING;
+                cmd = null;
 
                 setToReadyForLink();
                 goto ret;
@@ -258,7 +259,7 @@ namespace SocketFTPClient
                         else it.SubItems.Add(size.ToString());
                         LVFtp.Items.Add(it);
                     }
-                });
+                }, true);
             }
             else
             {
@@ -530,12 +531,12 @@ namespace SocketFTPClient
             if (buttonLog.Text == LanguageConstant.SHOW_LOG)
             {
                 buttonLog.Text = LanguageConstant.HIDE_LOG;
-                this.Height = 470;
+                this.Height += ListBoxLog.Height + 20;
             }
             else
             {
                 buttonLog.Text = LanguageConstant.SHOW_LOG;
-                this.Height = 320;
+                this.Height -= ListBoxLog.Height + 20;
             }
         }
 

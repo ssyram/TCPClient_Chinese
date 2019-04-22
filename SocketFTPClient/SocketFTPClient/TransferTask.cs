@@ -92,11 +92,11 @@ namespace SocketFTPClient
         }
 
         // the thread structure for running
-        private void threadCreate(Action<Func<string, string>, TcpClient> act) 
+        private void threadCreate(Action<Func<string, string>, TcpClient> act, bool needWait) 
         {
             toRun = new Thread(() =>
             {
-                cmd.passiveDataAction(string.Format(CommandConstant.CMD_FMT_BREAKPOINT, offset), act);
+                cmd.passiveDataAction(string.Format(CommandConstant.CMD_FMT_BREAKPOINT, offset), act, needWait);
             });
         }
 
@@ -124,7 +124,7 @@ namespace SocketFTPClient
                 rounder(fs, data.GetStream());
             ret:
                 cmd.sendCommand(CommandConstant.CMD_ABOR);
-            });
+            }, false);
         }
         // create an download task that ready for but not actually run
         private void createDownload(string fileName)
@@ -148,7 +148,7 @@ namespace SocketFTPClient
                 }
 
                 rounder(data.GetStream(), fs);
-            });
+            }, true);
         }
 
         public void run()

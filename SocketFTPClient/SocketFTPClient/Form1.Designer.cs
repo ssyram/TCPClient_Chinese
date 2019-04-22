@@ -206,7 +206,7 @@
             // 
             this.ListBoxLog.FormattingEnabled = true;
             this.ListBoxLog.ItemHeight = 24;
-            this.ListBoxLog.Location = new System.Drawing.Point(30, 580);
+            this.ListBoxLog.Location = new System.Drawing.Point(34, 642);
             this.ListBoxLog.Margin = new System.Windows.Forms.Padding(4);
             this.ListBoxLog.Name = "ListBoxLog";
             this.ListBoxLog.Size = new System.Drawing.Size(1552, 244);
@@ -302,7 +302,7 @@
             this.PBRunning.Location = new System.Drawing.Point(822, 502);
             this.PBRunning.Margin = new System.Windows.Forms.Padding(6);
             this.PBRunning.Name = "PBRunning";
-            this.PBRunning.Size = new System.Drawing.Size(364, 46);
+            this.PBRunning.Size = new System.Drawing.Size(440, 46);
             this.PBRunning.TabIndex = 21;
             // 
             // ButtonPause
@@ -318,12 +318,11 @@
             // 
             // LabelTask
             // 
-            this.LabelTask.AutoSize = true;
             this.LabelTask.BackColor = System.Drawing.Color.Transparent;
-            this.LabelTask.Location = new System.Drawing.Point(964, 512);
+            this.LabelTask.Location = new System.Drawing.Point(30, 570);
             this.LabelTask.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.LabelTask.Name = "LabelTask";
-            this.LabelTask.Size = new System.Drawing.Size(82, 24);
+            this.LabelTask.Size = new System.Drawing.Size(1558, 42);
             this.LabelTask.TabIndex = 23;
             this.LabelTask.Text = "无任务";
             // 
@@ -394,7 +393,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1612, 562);
+            this.ClientSize = new System.Drawing.Size(1608, 626);
             this.Controls.Add(this.buttonOpen);
             this.Controls.Add(this.buttonLog);
             this.Controls.Add(this.ButtonStop);

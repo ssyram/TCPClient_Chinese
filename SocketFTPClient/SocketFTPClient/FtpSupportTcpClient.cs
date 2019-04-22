@@ -74,13 +74,14 @@ namespace SocketFTPClient
             return new TcpClient(ip, port);
         }
 
-        public void passiveDataAction(string cmd, Action<Func<string, string>, TcpClient> act)
+        public void passiveDataAction(string cmd, Action<Func<string, string>, TcpClient> act, bool needWait)
         {
             TcpClient data = createPassiveDataChannel();
             sendCommand(cmd);
             act(s => sendCommand(s), data);
             // wait for all to complete transferation
-            waitForResponse();
+            if (needWait)
+                waitForResponse();
             data.GetStream().Close();
             sendCommand("ABOR\r\n");
         }
