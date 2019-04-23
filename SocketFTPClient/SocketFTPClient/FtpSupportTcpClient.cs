@@ -15,12 +15,35 @@ namespace SocketFTPClient
         public Action<string> log;
         string ip;
 
+        public string readAndLog()
+        {
+            string s = reader.ReadLine();
+            log(s);
+            return s;
+        }
+
+        // to wait for the whole response
+        // and log each line
+        // returns: the whole string
         public string waitForResponse()
         {
             string s = "";
+            string startCode = "";
             try
             {
-                s = reader.ReadLine();
+                s = readAndLog();
+                int i = 0;
+                for (; s[i] >= '0' && s[i] <= '9'; ++i)
+                    startCode += s[i];
+                if (s[i] == ' ')
+                    goto ret;
+                while (true)
+                {
+                    string line = readAndLog();
+                    s += line;
+                    if (line.StartsWith(startCode) && line[i] == ' ')
+                        goto ret;
+                }
             }
             catch (System.ObjectDisposedException)
             {
@@ -28,7 +51,7 @@ namespace SocketFTPClient
                 tcp.GetStream().Close();
                 tcp.Close();
             }
-            log(s);
+        ret:
             return s;
         }
 
@@ -40,13 +63,21 @@ namespace SocketFTPClient
             reader = new StreamReader(tcp.GetStream(), Encoding.Default);
             writer = tcp.GetStream();
             writer.ReadTimeout = 10000;
-            if (waitForResponse().Substring(0, 3) != "220") throw new SocketException();
+            if (!waitForResponse().StartsWith("220"))
+                throw new SocketException();
         }
 
-        public string sendCommand(string cmd)
+        private void send(string cmd)
         {
             var data = Encoding.ASCII.GetBytes(cmd.ToCharArray());
             writer.Write(data, 0, data.Length);
+        }
+
+        // to send message to the server
+        // returns: the whole return string
+        public string sendCommand(string cmd)
+        {
+            send(cmd);
             return waitForResponse();
         }
 
@@ -59,9 +90,11 @@ namespace SocketFTPClient
                 act(s);
         }
 
+        // 
         public string login(string username, string password)
         {
-            sendCommand("USER " + username + "\r\n");
+            var r = sendCommand("USER " + username + "\r\n");
+            if (password == null || password.Equals("")) return r;
             return sendCommand("PASS " + password + "\r\n");
         }
 
@@ -74,22 +107,28 @@ namespace SocketFTPClient
             return new TcpClient(ip, port);
         }
 
-        public void passiveDataAction(string cmd, Action<Func<string, string>, TcpClient> act, bool needWait)
+        // act returns whether it's out normally
+        public void passiveDataAction(string cmd, Func<Func<string, string>, TcpClient, bool> act, bool needWait)
         {
             TcpClient data = createPassiveDataChannel();
             sendCommand(cmd);
-            act(s => sendCommand(s), data);
             // wait for all to complete transferation
-            if (needWait)
+            if (act(s => sendCommand(s), data) && needWait)
                 waitForResponse();
             data.GetStream().Close();
-            sendCommand("ABOR\r\n");
+            abor();
         }
 
         public void closeStreams()
         {
             reader.Close();
             writer.Close();
+        }
+
+        public void abor()
+        {
+            send(CommandConstant.CMD_ABOR);
+            while (!waitForResponse().StartsWith("226")) ;
         }
 
         public void quitThis()

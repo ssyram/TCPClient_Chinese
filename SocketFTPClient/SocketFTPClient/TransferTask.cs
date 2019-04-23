@@ -59,40 +59,45 @@ namespace SocketFTPClient
         }
 
         bool _stop = false;
-        bool finish = false;
 
         // stop the task, there is some chance for continue
         public void stop()
         {
+            if (toRun == null) return;
             _stop = true;
             toRun.Join();
+            toRun = null;
         }
 
         public void continueRunning()
         {
-            if (toRun != null) throw new InvalidOperationException("The task is still running.");
+            if (toRun != null)
+                throw new InvalidOperationException(
+                    "The task is still running.");
+            _stop = false;
             createTask();
             toRun.Start();
         }
 
         // go round and read write, as well as accumulating offset
-        private void rounder(Stream reader, Stream writer)
+        private bool rounder(Stream reader, Stream writer)
         {
             byte[] tf = new byte[1030];
             int cnt = 0;
             while ((cnt = reader.Read(tf, 0, 1024)) > 0)
             {
-                if (_stop) return;
+                if (_stop)
+                    return false;
                 writer.Write(tf, 0, cnt);
                 offset += cnt;
                 updateCall(offset);
             }
-            finish = true;
             finishCall();
+            return true;
         }
 
         // the thread structure for running
-        private void threadCreate(Action<Func<string, string>, TcpClient> act, bool needWait) 
+        private void threadCreate(Func<Func<string, string>, TcpClient, bool> act, bool needWait) 
         {
             toRun = new Thread(() =>
             {
@@ -105,25 +110,30 @@ namespace SocketFTPClient
         {
             threadCreate((send, data) =>
             {
-                if (!send(string.Format(CommandConstant.CMD_FMT_UPLOAD, file)).Substring(0, 3).Equals("150"))
-                {
-                    failCall(LanguageConstant.UPLOAD_NOT_SUPPORT_ERROR);
-                    goto ret;
-                }
                 FileStream fs;
                 try
                 {
                     fs = new FileStream(Path.Combine(LocalPath, file), FileMode.Open);
+                    fs.Seek(offset, SeekOrigin.Begin);
                 }
                 catch (Exception)
                 {
                     failCall(LanguageConstant.CANNOT_OPEN_FILE);
                     goto ret;
                 }
+                // position changed: in order not to waste transfering
+                if (!send(string.Format(CommandConstant.CMD_FMT_UPLOAD, file)).StartsWith("150"))
+                {
+                    failCall(LanguageConstant.UPLOAD_NOT_SUPPORT_ERROR);
+                    goto ret;
+                }
 
-                rounder(fs, data.GetStream());
-            ret:
-                cmd.sendCommand(CommandConstant.CMD_ABOR);
+                var r = rounder(fs, data.GetStream());
+                fs.Close();
+                if (!r) return r;
+                ret:
+                cmd.abor();
+                return true;
             }, false);
         }
         // create an download task that ready for but not actually run
@@ -131,23 +141,26 @@ namespace SocketFTPClient
         {
             threadCreate((send, data) =>
             {
-                if (!send(string.Format(CommandConstant.CMD_FMT_DOWNLOAD, fileName)).Substring(0, 3).Equals("150"))
-                {
-                    failCall(LanguageConstant.DOWNLOAD_NOT_SUPPORT_ERROR);
-                    return;
-                }
                 FileStream fs;
                 try
                 {
                     fs = new FileStream(Path.Combine(LocalPath, fileName), FileMode.OpenOrCreate, FileAccess.Write);
+                    fs.Seek(offset, SeekOrigin.Begin);
                 }
                 catch (Exception)
                 {
                     failCall(LanguageConstant.CANNOT_OPEN_FILE);
-                    return;
+                    return true;
+                }
+                if (!send(string.Format(CommandConstant.CMD_FMT_DOWNLOAD, fileName)).StartsWith("150"))
+                {
+                    failCall(LanguageConstant.DOWNLOAD_NOT_SUPPORT_ERROR);
+                    return true;
                 }
 
-                rounder(data.GetStream(), fs);
+                var r = rounder(data.GetStream(), fs);
+                fs.Close();
+                return r;
             }, true);
         }
 

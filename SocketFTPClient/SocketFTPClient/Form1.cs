@@ -132,7 +132,9 @@ namespace SocketFTPClient
             //{
             var r = new FtpSupportTcpClient(ip, port, s =>
             {
-                ListBoxLog.Items.Add(s);
+                var ss = Regex.Split(s, "\n");
+                foreach (var str in ss)
+                    ListBoxLog.Items.Add(str);
                 ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
             });  // for port is "ushort", no need to check
             return r;
@@ -259,6 +261,7 @@ namespace SocketFTPClient
                         else it.SubItems.Add(size.ToString());
                         LVFtp.Items.Add(it);
                     }
+                    return true;
                 }, true);
             }
             else
@@ -313,7 +316,7 @@ namespace SocketFTPClient
             CheckForIllegalCrossThreadCalls = false;
             // just for test
             BoxIP.Text = "10.211.55.3";
-            BoxUsername.Text = "123";
+            BoxUsername.Text = "aaaaa";
             BoxPassword.Text = "123";
         }
 
@@ -447,19 +450,23 @@ namespace SocketFTPClient
             }
             if (ButtonPause.Text.Equals(LanguageConstant.PAUSE_STRING))
             {
-                if (task == null) throw new FormatException("No Task is Running");
+                if (task == null)
+                    throw new FormatException("No Task is Running");
                 task.stop();
                 LabelTask.Text = string.Format(
                     task.Type == TransferTask.TaskType.upload ? LanguageConstant.PAUSE_UPLOAD_FMT : LanguageConstant.PAUSE_DOWNLOAD_FMT,
                     task.FileName);
+                ButtonPause.Text = LanguageConstant.CONTINUE_STRING;
             }
             else
             {
-                if (task == null) throw new FormatException("No Task is Running");
+                if (task == null)
+                    throw new FormatException("No Task is Running");
                 task.continueRunning();
                 LabelTask.Text = string.Format(
                     task.Type == TransferTask.TaskType.upload ? LanguageConstant.UPLOADING_FMT : LanguageConstant.DOWNLOADING_FMT,
                     task.FileName);
+                ButtonPause.Text = LanguageConstant.PAUSE_STRING;
             }
         }
 
@@ -487,6 +494,9 @@ namespace SocketFTPClient
             if (task == null) throw new FormatException("No Task Is Running");
             task.stop();
             task = null;
+            PBRunning.Value = 0;
+            LabelTask.Text = LanguageConstant.NO_TASK_STRING;
+            ButtonPause.Text = LanguageConstant.PAUSE_STRING;
             runningPartBatch(true);
         }
 
