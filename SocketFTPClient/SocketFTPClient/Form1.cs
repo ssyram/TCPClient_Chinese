@@ -230,7 +230,7 @@ namespace SocketFTPClient
             {
                 cmd.passiveDataAction(CommandConstant.CMD_LIST, (send, data) =>
                 {
-                    StreamReader reader = new StreamReader(data.GetStream(), Encoding.Default);
+                    StreamReader reader = new StreamReader(data.GetStream(), cmd.encoder);
                     string s;
                     while ((s = reader.ReadLine()) != null)
                     {
@@ -325,7 +325,7 @@ namespace SocketFTPClient
             refreshLocal();
             CheckForIllegalCrossThreadCalls = false;
             // just for test
-            BoxIP.Text = "10.211.55.3";
+            BoxIP.Text = "192.168.56.1";
             BoxUsername.Text = "aaaaa";
             BoxPassword.Text = "123";
         }

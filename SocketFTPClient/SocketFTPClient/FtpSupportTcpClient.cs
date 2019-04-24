@@ -12,6 +12,7 @@ namespace SocketFTPClient
         public TcpClient tcp;
         public StreamReader reader;
         public NetworkStream writer;
+        public Encoding encoder = Encoding.Default;
         public Action<string> log;
         string ip;
 
@@ -42,7 +43,7 @@ namespace SocketFTPClient
                 while (true)
                 {
                     string line = readAndLog();
-                    s += line;
+                    s += "\n" + line;
                     if (line.StartsWith(startCode) && line[i] == ' ')
                         goto ret;
                 }
@@ -62,16 +63,18 @@ namespace SocketFTPClient
             this.ip = ip;
             this.log = log;
             tcp = new TcpClient(ip, port);
-            reader = new StreamReader(tcp.GetStream(), Encoding.Default);
+            reader = new StreamReader(tcp.GetStream(), encoder);
             writer = tcp.GetStream();
             writer.ReadTimeout = 10000;
             if (!waitForResponse().StartsWith("220"))
                 throw new SocketException();
+            string s = sendCommand(CommandConstant.CMD_FEAT);
+            if (Regex.IsMatch(s, "UTF8\n")) encoder = Encoding.UTF8;
         }
 
         private void send(string cmd)
         {
-            var data = Encoding.Default.GetBytes(cmd.ToCharArray());
+            var data = encoder.GetBytes(cmd.ToCharArray());
             writer.Write(data, 0, data.Length);
         }
 
@@ -85,7 +88,7 @@ namespace SocketFTPClient
 
         public void readAllFromCommand(string cmd, Action<string> act)
         {
-            var data = Encoding.ASCII.GetBytes(cmd.ToCharArray());
+            var data = encoder.GetBytes(cmd.ToCharArray());
             writer.Write(data, 0, data.Length);
             string s;
             while ((s = reader.ReadLine()) != null)

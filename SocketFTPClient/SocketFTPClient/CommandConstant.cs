@@ -14,6 +14,7 @@ namespace SocketFTPClient
         public const string CMD_PASV = "PASV" + CRLF;
         public const string CMD_ABOR = "ABOR" + CRLF;
         public const string CMD_QUIT = "QUIT" + CRLF;
+        public const string CMD_FEAT = "FEAT" + CRLF;
         // cmd format list
         public const string CMD_FMT_USRNAME = "USER {0}" + CRLF;
         public const string CMD_FMT_PASSWORD = "PASS {0}" + CRLF;
