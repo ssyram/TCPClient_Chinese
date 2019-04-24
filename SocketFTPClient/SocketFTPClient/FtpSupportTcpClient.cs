@@ -69,7 +69,7 @@ namespace SocketFTPClient
 
         private void send(string cmd)
         {
-            var data = Encoding.ASCII.GetBytes(cmd.ToCharArray());
+            var data = Encoding.Default.GetBytes(cmd.ToCharArray());
             writer.Write(data, 0, data.Length);
         }
 
