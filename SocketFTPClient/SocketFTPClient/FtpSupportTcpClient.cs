@@ -17,7 +17,9 @@ namespace SocketFTPClient
 
         public string readAndLog()
         {
-            string s = reader.ReadLine();
+
+            string s;
+            s = reader.ReadLine();
             log(s);
             return s;
         }

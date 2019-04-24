@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
 
 namespace SocketFTPClient
 {
@@ -79,6 +80,15 @@ namespace SocketFTPClient
                     MessageBox.Show(LanguageConstant.PASSWORD_ERROR);
                     goto brk;
                 }
+
+                // just try to test all kinds of commands
+                // while (true)
+                // {
+                //     rets = Interaction.InputBox("命令");
+                //     MessageBox.Show(
+                //         cmd.sendCommand(rets + CommandConstant.CRLF)
+                //     );
+                // }
 
                 ButtonConnect.Text = LanguageConstant.DISCONNECT_STRING;
                 functionEnable();
