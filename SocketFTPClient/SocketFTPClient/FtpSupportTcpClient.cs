@@ -69,7 +69,11 @@ namespace SocketFTPClient
             if (!waitForResponse().StartsWith("220"))
                 throw new SocketException();
             string s = sendCommand(CommandConstant.CMD_FEAT);
-            if (Regex.IsMatch(s, "UTF8\n")) encoder = Encoding.UTF8;
+            if (Regex.IsMatch(s, "UTF8\n"))
+            {
+                encoder = Encoding.UTF8;
+                reader = new StreamReader(tcp.GetStream(), encoder);
+            }
         }
 
         private void send(string cmd)

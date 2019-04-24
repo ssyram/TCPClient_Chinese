@@ -142,9 +142,7 @@ namespace SocketFTPClient
             //{
             var r = new FtpSupportTcpClient(ip, port, s =>
             {
-                var ss = Regex.Split(s, "\n");
-                foreach (var str in ss)
-                    ListBoxLog.Items.Add(str);
+                ListBoxLog.Items.Add(s);
                 ListBoxLog.SelectedIndex = ListBoxLog.Items.Count - 1;
             });  // for port is "ushort", no need to check
             return r;
@@ -306,10 +304,8 @@ namespace SocketFTPClient
             ButtonUpload.Enabled = act;
             ButtonDownload.Enabled = act;
             ButtonPath.Enabled = act;
-            ButtonPause.Enabled = act;
             ButtonRefreshLocal.Enabled = act;
             ButtonRefreshFtp.Enabled = act;
-            ButtonStop.Enabled = act;
 
             LVLocal.Enabled = act;
             LVFtp.Enabled = act;
@@ -318,9 +314,10 @@ namespace SocketFTPClient
         private void Form1_Load(object sender, EventArgs e)
         {
             //load skin file and set to the form
-            //skinEngine.SkinFile = Application.StartupPath + @"\SportsBlack.ssk";
+            skinEngine.SkinFile = Application.StartupPath + @"\SportsBlack.ssk";
 
             actionBatch(false);
+            runningBatch(false);
             BoxLocalAddress.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             refreshLocal();
             CheckForIllegalCrossThreadCalls = false;
@@ -486,16 +483,15 @@ namespace SocketFTPClient
         // after which they should function as usual.
         private void runningPartBatch(bool act)
         {
-            ButtonPath.Enabled = act;
-            LVLocal.Enabled = act;
-            LVFtp.Enabled = act;
-            ButtonUpload.Enabled = act;
-            ButtonDownload.Enabled = act;
-            ButtonRefreshLocal.Enabled = act;
-            ButtonRefreshFtp.Enabled = act;
+            actionBatch(act);
 
-            ButtonStop.Enabled = !act;
-            ButtonPause.Enabled = !act;
+            runningBatch(!act);
+        }
+
+        private void runningBatch(bool act)
+        {
+            ButtonStop.Enabled = act;
+            ButtonPause.Enabled = act;
         }
 
         // Just stop but not ready to continue the task
