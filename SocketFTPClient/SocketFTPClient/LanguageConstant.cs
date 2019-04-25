@@ -15,6 +15,7 @@ namespace SocketFTPClient
         public const string NO_TASK_STRING = "无任务";
         public const string PAUSE_STRING = "暂停";
         public const string CONTINUE_STRING = "继续";
+        public const string ENTER_STRING = "浏览";
         public const string DOWNLOADING_FMT = "正在下载：{0}";
         public const string PAUSE_DOWNLOAD_FMT = "暂停下载：{0}";
         public const string UPLOADING_FMT = "正在上传：{0}";

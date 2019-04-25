@@ -351,7 +351,7 @@ namespace SocketFTPClient
                 //if (e.KeyChar == '0' && BoxPort.Text == "") return;
                 BoxPort.Text += e.KeyChar;
                 BoxPort.Select(BoxPort.Text.Length, 0);  // focus on the last one
-                if (Convert.ToInt32(BoxPort.Text) > 65535)
+                if (Convert.ToInt32(BoxPort.Text) > 65535 || BoxPort.Text.Length > 5)
                 {
                     BoxPort.Text = "65535";
                     BoxPort.Select(BoxPort.Text.Length, 0);
@@ -461,7 +461,8 @@ namespace SocketFTPClient
                     throw new FormatException("No Task is Running");
                 task.stop();
                 LabelTask.Text = string.Format(
-                    task.Type == TransferTask.TaskType.upload ? LanguageConstant.PAUSE_UPLOAD_FMT : LanguageConstant.PAUSE_DOWNLOAD_FMT,
+                    task.Type == TransferTask.TaskType.upload ? 
+                    LanguageConstant.PAUSE_UPLOAD_FMT : LanguageConstant.PAUSE_DOWNLOAD_FMT,
                     task.FileName);
                 ButtonPause.Text = LanguageConstant.CONTINUE_STRING;
             }
@@ -471,7 +472,8 @@ namespace SocketFTPClient
                     throw new FormatException("No Task is Running");
                 task.continueRunning();
                 LabelTask.Text = string.Format(
-                    task.Type == TransferTask.TaskType.upload ? LanguageConstant.UPLOADING_FMT : LanguageConstant.DOWNLOADING_FMT,
+                    task.Type == TransferTask.TaskType.upload ? 
+                    LanguageConstant.UPLOADING_FMT : LanguageConstant.DOWNLOADING_FMT,
                     task.FileName);
                 ButtonPause.Text = LanguageConstant.PAUSE_STRING;
             }
@@ -509,7 +511,8 @@ namespace SocketFTPClient
         private void uploadItem()
         {
             if (LVLocal.SelectedIndices.Count != 1) return;
-            startRunning(LVLocal.SelectedItems[0].Text, TransferTask.TaskType.upload, Convert.ToInt64(LVLocal.SelectedItems[0].SubItems[1].Text));
+            startRunning(LVLocal.SelectedItems[0].Text, 
+                TransferTask.TaskType.upload, Convert.ToInt64(LVLocal.SelectedItems[0].SubItems[1].Text));
         }
 
         private void ButtonUpload_Click(object sender, EventArgs e)
@@ -565,6 +568,15 @@ namespace SocketFTPClient
             {
                 System.Diagnostics.Process.Start("Explorer.exe", localPath);
             }
+        }
+
+        private void LVFtp_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (LVFtp.SelectedIndices.Count != 1) return;
+            if (LVFtp.SelectedItems[0].SubItems[1].Text == "directory")
+                ButtonDownload.Text = LanguageConstant.ENTER_STRING;
+            else
+                ButtonDownload.Text = LanguageConstant.DOWNLOAD_STRING;
         }
     }
 }

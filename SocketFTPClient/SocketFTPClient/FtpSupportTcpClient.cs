@@ -18,7 +18,6 @@ namespace SocketFTPClient
 
         public string readAndLog()
         {
-
             string s;
             s = reader.ReadLine();
             log(s);
@@ -69,7 +68,7 @@ namespace SocketFTPClient
             if (!waitForResponse().StartsWith("220"))
                 throw new SocketException();
             string s = sendCommand(CommandConstant.CMD_FEAT);
-            if (Regex.IsMatch(s, "UTF8\n"))
+            if (Regex.IsMatch(s, "\n UTF8\n"))
             {
                 encoder = Encoding.UTF8;
                 reader = new StreamReader(tcp.GetStream(), encoder);
@@ -92,14 +91,13 @@ namespace SocketFTPClient
 
         public void readAllFromCommand(string cmd, Action<string> act)
         {
-            var data = encoder.GetBytes(cmd.ToCharArray());
-            writer.Write(data, 0, data.Length);
+            send(cmd);
             string s;
             while ((s = reader.ReadLine()) != null)
                 act(s);
         }
 
-        // 
+        // login
         public string login(string username, string password)
         {
             var r = sendCommand("USER " + username + "\r\n");
